@@ -1,18 +1,11 @@
 #include "readGravitationalAcceleration.H"
 
+Info << endl << "Registering the velocity" << endl; 
+label UFieldLabel = i_ModelManager.GetInterpolator().registerField("U",CMisc::GLOBAL,dimVelocity,FIELDTYPE_VECTOR);
+
+
 Info<< "Reading field U\n" << endl;
-volVectorField U
-(
-    IOobject
-    (
-        "U",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+volVectorField& U = i_ModelManager.GetInterpolator().GetVectorFieldTemporal(UFieldLabel);
 
 #include "createPhi.H"
 
@@ -68,7 +61,7 @@ basicStochasticCloud kinematicCloud
     U,
     mu,
     g,
-    i_ParamManager
+    i_ModelManager
 );
 
 IOobject Hheader

@@ -42,11 +42,7 @@ Description
 #include "singlePhaseTransportModel.H"
 #include "turbulentTransportModel.H"
 #include "basicStochasticCloud.H"
-#include "RegManager.H"
-#include "TimeManager.H"
-#include "Interpolator.H"
-#include "ParametrizationBase.H"
-#include "ParamManager.H"
+#include "ModelManager.H"
 
 using namespace Foam;
 
@@ -73,69 +69,28 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     
-    Info<< "\nIIBR Lagrangian Solver\n";
+    Info << endl << "IIBR Lagrangian Solver" << endl;
+    Info <<         "----------------------" << endl;
    
-    Info << "\nInitiliazing Registration Manager\n";
-    CRegManager i_RegManager(mesh);
-    
-    Info << "\nInitializing Time Manager\n";
-    CTimeManager i_TimeManager(mesh, 2);
-    
-    Info << "\nInitiliazing Interpolator\n";
-    CInterpolator i_Interpolator(i_TimeManager, mesh);
-    
-    Info << "\nInitiliazing Parametrization Manager\n";
-    CParamManager i_ParamManager(mesh, i_RegManager, "rootCase", i_Interpolator);
+    Info << endl << "Initiliazing the Model Manager" << endl;
+    CModelManager i_ModelManager(mesh,"rootCase", 2);
    
     #include "createFields.H"
     #include "postProcess.H"
-    
-    Info << "\nFinding root case path\n";
-    
-    //TODO Read root case
-    instantList rootTimeDirs = runTime.findTimes("rootCase");
-    
-    label s = CMisc::FindClosestPastIndex(runTime.value(), rootTimeDirs);
-    
-    Info << "\nLoading First time step " << rootTimeDirs[s].value() << "\n";
-    
-    i_TimeManager.AdvanceEulerTime(rootTimeDirs[s].value());
-    i_ParamManager.LoadEulerTimeStep(rootTimeDirs[s].value(), i_TimeManager.EulerTimeIndex(0));
-    Info << "\nLoading second time step " << rootTimeDirs[s+1].value() << "\n";
-    
-    i_TimeManager.AdvanceEulerTime(rootTimeDirs[s+1].value());
-    i_ParamManager.LoadEulerTimeStep(rootTimeDirs[s+1].value(), i_TimeManager.EulerTimeIndex(0));
-    
 
-    //Temporal interpolation for velocity field U before first step
     Info << "\nStarting time loop\n" << endl;
     while (runTime.loop())
     {
-        scalar dCurrTime = runTime.time().value();
-        
+    
         Info<< "Time = " << runTime.timeName() << nl << endl;
-        
-        if (dCurrTime > i_TimeManager.EulerTime(i_TimeManager.EulerTimeIndex(0)))
-        {
-            s = CMisc::FindClosestPastIndex(runTime.value(), rootTimeDirs);
-            const scalar dEulerTime = rootTimeDirs[s+1].value();
-            i_TimeManager.AdvanceEulerTime(dEulerTime);
-            i_ParamManager.LoadEulerTimeStep(dEulerTime, i_TimeManager.EulerTimeIndex(0));
-        }
-        
-        i_Interpolator.UpdateFactors();
-        
-        U = i_Interpolator.TemporalInterpolate<volVectorField>(word("U"),label(0));
-
-        Info<< "Evolving " << kinematicCloud.name() << endl;
+    	i_ModelManager.Advance(runTime.time().value());
         
         laminarTransport.correct();
-
         mu = laminarTransport.nu()*rhoInfValue;
 
         //Cloud evolves
+        Info<< "Evolving " << kinematicCloud.name() << endl;
         kinematicCloud.evolve();
-
         runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
