@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     #include "createFields.H"
     #include "postProcess.H"
 
+/*
     Info << "\nStarting time loop\n" << endl;
     while (runTime.loop())
     {
@@ -90,14 +91,14 @@ int main(int argc, char *argv[])
 
         //Cloud evolves
         Info<< "Evolving " << kinematicCloud.name() << endl;
-        kinematicCloud.evolve();
-        runTime.write();
+        //kinematicCloud.evolve();
+        //runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
     }
-
+*/
     Info<< "End\n" << endl;
 
     return 0;

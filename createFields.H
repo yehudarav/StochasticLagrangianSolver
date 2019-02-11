@@ -1,11 +1,13 @@
-#include "readGravitationalAcceleration.H"
 
 Info << endl << "Registering the velocity" << endl; 
-label UFieldLabel = i_ModelManager.GetInterpolator().registerField("U",CMisc::GLOBAL,dimVelocity,FIELDTYPE_VECTOR);
+label UFieldLabel = i_ModelManager.GetInterpolator().registerVectorField("U",CMisc::GLOBAL,dimVelocity);
 
+Info << " Registered at label " << UFieldLabel << endl;
 
 Info<< "Reading field U\n" << endl;
 volVectorField& U = i_ModelManager.GetInterpolator().GetVectorFieldTemporal(UFieldLabel);
+
+#include "readGravitationalAcceleration.H"
 
 #include "createPhi.H"
 
@@ -63,41 +65,5 @@ basicStochasticCloud kinematicCloud
     g,
     i_ModelManager
 );
-
-IOobject Hheader
-(
-    "H",
-    runTime.timeName(),
-    mesh,
-    IOobject::MUST_READ,
-    IOobject::AUTO_WRITE
-);
-
-autoPtr<volVectorField> HPtr;
-
-if (Hheader.typeHeaderOk<volVectorField>(true))
-{
-    Info<< "\nReading field H\n" << endl;
-
-    HPtr.reset(new volVectorField (Hheader, mesh));
-}
-
-IOobject HdotGradHheader
-(
-    "HdotGradH",
-    runTime.timeName(),
-    mesh,
-    IOobject::MUST_READ,
-    IOobject::AUTO_WRITE
-);
-
-autoPtr<volVectorField> HdotGradHPtr;
-
-if (HdotGradHheader.typeHeaderOk<volVectorField>(true))
-{
-    Info<< "Reading field HdotGradH" << endl;
-
-    HdotGradHPtr.reset(new volVectorField(HdotGradHheader, mesh));
-}
 
 #include "createNonInertialFrameFields.H"
