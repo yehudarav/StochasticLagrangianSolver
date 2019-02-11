@@ -126,8 +126,7 @@ int main(int argc, char *argv[])
         i_Interpolator.UpdateFactors();
         
         U = i_Interpolator.TemporalInterpolate<volVectorField>(word("U"),label(0));
-        Info << "\n Velocity field value at cell 10 is " << U[10] << "\n";
-        
+
         Info<< "Evolving " << kinematicCloud.name() << endl;
         
         laminarTransport.correct();
