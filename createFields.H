@@ -5,7 +5,11 @@ label UFieldLabel = i_ModelManager.GetInterpolator().registerVectorField("U",CMi
 Info << " Registered at label " << UFieldLabel << endl;
 
 Info<< "Reading field U\n" << endl;
-volVectorField& U = i_ModelManager.GetInterpolator().GetVectorFieldTemporal(UFieldLabel);
+volVectorField& U(*i_ModelManager.GetInterpolator().GetInterpolatedVectorField(UFieldLabel));
+
+// (50.109 197.727 14.0606) | 1443
+//Info << i_ModelManager.GetInterpolator().GetVectorFieldInterpolation(UFieldLabel)->spatialInterpolator().interpolate(vector(50.109,197.727,14.0606),1443) << endl;
+
 
 #include "readGravitationalAcceleration.H"
 

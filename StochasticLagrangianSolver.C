@@ -28,7 +28,6 @@ Description
     Transient solver for the of a single kinematic
     particle cloud.
 
-    Uses a pre-calculated velocity field to evolve the cloud.
 
 \*---------------------------------------------------------------------------*/
 //-How do use geometric interpolation (interpolationCellPoint class)
@@ -43,6 +42,8 @@ Description
 #include "turbulentTransportModel.H"
 #include "basicStochasticCloud.H"
 #include "ModelManager.H"
+
+#include "cellPointWeight.H"
 
 using namespace Foam;
 
@@ -78,27 +79,27 @@ int main(int argc, char *argv[])
     #include "createFields.H"
     #include "postProcess.H"
 
-/*
+    i_ModelManager.GetRegManager().printStats();
+
     Info << "\nStarting time loop\n" << endl;
     while (runTime.loop())
     {
     
         Info<< "Time = " << runTime.timeName() << nl << endl;
-    	i_ModelManager.Advance(runTime.time().value());
-        
+    	i_ModelManager.Advance();
         laminarTransport.correct();
         mu = laminarTransport.nu()*rhoInfValue;
 
         //Cloud evolves
         Info<< "Evolving " << kinematicCloud.name() << endl;
-        //kinematicCloud.evolve();
-        //runTime.write();
+        kinematicCloud.evolve();
+        runTime.write();
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
     }
-*/
+
     Info<< "End\n" << endl;
 
     return 0;
